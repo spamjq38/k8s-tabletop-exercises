@@ -1,0 +1,168 @@
+---
+# Problem 1: Node Selector - Label Doesn't Exist
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wrong-selector-app
+  namespace: exercise-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wrong-selector
+  template:
+    metadata:
+      labels:
+        app: wrong-selector
+    spec:
+      nodeSelector:
+        environment: production  # ❌ No node has this label (setup adds "staging" to worker)
+      containers:
+      - name: app
+        image: nginx:latest
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+
+---
+# Problem 2: Taint Without Toleration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: no-toleration-app
+  namespace: exercise-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: no-toleration
+  template:
+    metadata:
+      labels:
+        app: no-toleration
+    spec:
+      # ❌ Control plane has taint "special=true:NoSchedule" but no toleration
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""  # Try to schedule on control plane
+      containers:
+      - name: app
+        image: nginx:latest
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+
+---
+# Problem 3: Excessive Resource Requests
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-hog-app
+  namespace: exercise-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resource-hog
+  template:
+    metadata:
+      labels:
+        app: resource-hog
+    spec:
+      containers:
+      - name: app
+        image: nginx:latest
+        resources:
+          requests:
+            memory: "32Gi"  # ❌ Requesting way more than cluster has!
+            cpu: "16000m"
+
+---
+# Problem 4: Pod Anti-Affinity Conflict
+# First deploy a "database" pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: database-pod
+  namespace: exercise-05
+  labels:
+    app: database
+    tier: backend
+spec:
+  containers:
+  - name: db
+    image: postgres:13-alpine
+    env:
+    - name: POSTGRES_PASSWORD
+      value: testpass
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+
+---
+# Then try to deploy another backend pod with anti-affinity
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anti-affinity-app
+  namespace: exercise-05
+spec:
+  replicas: 2  # ❌ Trying to schedule 2 replicas
+  selector:
+    matchLabels:
+      app: anti-affinity
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: anti-affinity
+        tier: backend
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: tier
+                operator: In
+                values:
+                - backend
+            topologyKey: kubernetes.io/hostname
+      # ❌ With only 2 nodes and anti-affinity requiring backend pods
+      # be on different nodes, the second replica can't schedule
+      containers:
+      - name: app
+        image: nginx:latest
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+
+---
+# Problem 5: Multiple Issues Combined
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-problem-app
+  namespace: exercise-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multi-problem
+  template:
+    metadata:
+      labels:
+        app: multi-problem
+    spec:
+      nodeSelector:
+        disktype: nvme  # ❌ No node has this label
+      containers:
+      - name: app
+        image: nginx:latest
+        resources:
+          requests:
+            memory: "8Gi"  # ❌ Also requesting too much memory
+            cpu: "4000m"

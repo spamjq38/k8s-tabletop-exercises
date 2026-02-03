@@ -1,0 +1,109 @@
+---
+# Pod 1: Missing ConfigMap
+apiVersion: v1
+kind: Pod
+metadata:
+  name: missing-configmap-pod
+  namespace: exercise-04
+spec:
+  containers:
+  - name: app
+    image: busybox:latest
+    command: ['sh', '-c', 'echo "Starting..."; cat /etc/config/app.conf; sleep 3600']
+    volumeMounts:
+    - name: config
+      mountPath: /etc/config
+  volumes:
+  - name: config
+    configMap:
+      name: app-config  # ❌ This ConfigMap doesn't exist!
+
+---
+# Pod 2: Wrong ConfigMap Key
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+  namespace: exercise-04
+data:
+  db_host: "postgres.example.com"
+  db_port: "5432"
+  db_name: "myapp"
+  # Notice: key is "db_user" not "database_user"
+  db_user: "appuser"
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wrong-key-pod
+  namespace: exercise-04
+spec:
+  containers:
+  - name: app
+    image: busybox:latest
+    command: ['sh', '-c', 'echo "DB_USER is: $DB_USER"; sleep 3600']
+    env:
+    - name: DB_USER
+      valueFrom:
+        configMapKeyRef:
+          name: database-config
+          key: database_user  # ❌ Wrong! Should be "db_user"
+
+---
+# Pod 3: Missing Secret
+apiVersion: v1
+kind: Pod
+metadata:
+  name: missing-secret-pod
+  namespace: exercise-04
+spec:
+  containers:
+  - name: app
+    image: busybox:latest
+    command: ['sh', '-c', 'echo "Password: $DB_PASSWORD"; sleep 3600']
+    env:
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: db-credentials  # ❌ This Secret doesn't exist!
+          key: password
+
+---
+# Pod 4: Environment Variable Typo in Application Code
+# This pod references an env var that doesn't match what's provided
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: exercise-04
+data:
+  api_endpoint: "https://api.example.com"  # Note the key name
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-typo-pod
+  namespace: exercise-04
+spec:
+  containers:
+  - name: app
+    image: busybox:latest
+    command: 
+    - sh
+    - -c
+    - |
+      # Application expects API_URL but we provided API_ENDPOINT
+      if [ -z "$API_URL" ]; then
+        echo "ERROR: API_URL environment variable not set!"
+        exit 1
+      fi
+      echo "API_URL is: $API_URL"
+      sleep 3600
+    env:
+    - name: API_ENDPOINT  # ❌ Application expects API_URL!
+      valueFrom:
+        configMapKeyRef:
+          name: api-config
+          key: api_endpoint

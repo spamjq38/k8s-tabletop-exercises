@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: exercise-04
+  labels:
+    managed-by: argocd
+    exercise: "04"

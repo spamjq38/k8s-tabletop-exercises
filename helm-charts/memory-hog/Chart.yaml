@@ -1,0 +1,12 @@
+apiVersion: v2
+name: memory-hog
+description: A deliberately broken Helm chart for practicing OOM troubleshooting
+type: application
+version: 1.0.0
+appVersion: "1.0"
+keywords:
+  - tabletop-exercise
+  - troubleshooting
+  - oom
+maintainers:
+  - name: DevOps Training

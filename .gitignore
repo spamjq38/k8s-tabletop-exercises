@@ -1,0 +1,12 @@
+# Temporary files
+*.log
+*.tmp
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+
+# Local test files
+test-*.yaml
+scratch/

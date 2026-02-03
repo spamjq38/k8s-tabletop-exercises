@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tabletop-exercises
+  labels:
+    managed-by: argocd
+    purpose: training

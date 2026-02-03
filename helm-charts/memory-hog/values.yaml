@@ -1,0 +1,56 @@
+# Default values for memory-hog
+# This chart is INTENTIONALLY broken for training purposes
+# The memory limit is too low and will cause OOMKilled
+
+replicaCount: 1
+
+image:
+  repository: polinux/stress
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# PROBLEM: These resource limits are too low!
+# The stress test will allocate 128Mi but we only allow 50Mi
+resources:
+  limits:
+    memory: "50Mi"    # ❌ DELIBERATELY TOO LOW - will cause OOMKill
+    cpu: "100m"
+  requests:
+    memory: "50Mi"
+    cpu: "100m"
+
+# Stress test configuration
+# This will try to allocate 128Mi of memory
+stressArgs:
+  - "--vm"
+  - "1"
+  - "--vm-bytes"
+  - "128M"           # Tries to allocate 128Mi
+  - "--vm-hang"
+  - "0"
+  - "--verbose"
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  scenario: "crashloop-backoff"
+  training: "true"
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  enabled: false  # No service needed for this scenario
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
