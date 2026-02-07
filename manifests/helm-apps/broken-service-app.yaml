@@ -1,0 +1,40 @@
+# ArgoCD Application for Broken-Service Helm Chart
+# This makes the Helm chart fully GitOps-managed
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: broken-service-helm
+  namespace: argocd
+  labels:
+    exercise: broken-service
+    type: helm
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/spamjq38/k8s-tabletop-exercises.git
+    targetRevision: main
+    path: helm-charts/broken-service
+    helm:
+      releaseName: broken-app
+      values: |
+        # Default values - intentionally broken for training
+        replicaCount: 1
+        service:
+          type: ClusterIP
+          port: 80
+          targetPort: 9090  # WRONG - app listens on 8080
+        image:
+          repository: hashicorp/http-echo
+          tag: latest
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: exercise-broken-service
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: exercise-memory-hog
+  labels:
+    managed-by: argocd
+    exercise-type: helm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: memory-hog-chart
+  namespace: exercise-memory-hog
+  labels:
+    app: memory-hog
+data:
+  # This tells users where to find the helm chart
+  helm-chart-location: "../helm-charts/memory-hog"
+  instructions: |
+    This exercise uses the memory-hog Helm chart.
+    
+    To deploy manually (for testing):
+      helm install memory-app /root/tabletop-exercises/helm-charts/memory-hog -n exercise-memory-hog
+    
+    To see values:
+      helm show values /root/tabletop-exercises/helm-charts/memory-hog

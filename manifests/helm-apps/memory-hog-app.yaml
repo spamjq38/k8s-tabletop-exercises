@@ -1,0 +1,41 @@
+# ArgoCD Application for Memory-Hog Helm Chart
+# This makes the Helm chart fully GitOps-managed
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: memory-hog-helm
+  namespace: argocd
+  labels:
+    exercise: memory-hog
+    type: helm
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/spamjq38/k8s-tabletop-exercises.git
+    targetRevision: main
+    path: helm-charts/memory-hog
+    helm:
+      releaseName: memory-app
+      values: |
+        # Default values - intentionally broken for training
+        replicaCount: 1
+        image:
+          repository: nginx
+          tag: latest
+        resources:
+          limits:
+            memory: 50Mi  # TOO LOW - will cause OOMKilled
+          requests:
+            memory: 10Mi
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: exercise-memory-hog
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

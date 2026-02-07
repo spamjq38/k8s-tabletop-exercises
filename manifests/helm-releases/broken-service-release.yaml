@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: exercise-broken-service
+  labels:
+    managed-by: argocd
+    exercise-type: helm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broken-service-chart
+  namespace: exercise-broken-service
+  labels:
+    app: broken-service
+data:
+  helm-chart-location: "../helm-charts/broken-service"
+  instructions: |
+    This exercise uses the broken-service Helm chart.
+    
+    To deploy manually (for testing):
+      helm install broken-app /root/tabletop-exercises/helm-charts/broken-service -n exercise-broken-service
+    
+    To see values:
+      helm show values /root/tabletop-exercises/helm-charts/broken-service
