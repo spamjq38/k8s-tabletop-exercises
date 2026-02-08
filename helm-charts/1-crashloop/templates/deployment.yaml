@@ -14,6 +14,7 @@ spec:
       labels:
         {{- include "crashloop.selectorLabels" . | nindent 8 }}
     spec:
+      restartPolicy: {{ .Values.restartPolicy }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -24,4 +25,3 @@ spec:
         {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
-        restartPolicy: {{ .Values.restartPolicy }}
