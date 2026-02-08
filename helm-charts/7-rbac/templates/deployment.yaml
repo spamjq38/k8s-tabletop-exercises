@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "rbac.fullname" . }}
+  labels:
+    {{- include "rbac.labels" . | nindent 4 }}
+---
+# This is the problem: ServiceAccount has no permissions
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rbac.fullname" . }}
+  labels:
+    {{- include "rbac.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "rbac.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rbac.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "rbac.fullname" . }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Attempting to list pods in cluster..."
+          kubectl get pods -A
+          echo "If you see 'Forbidden', that's the RBAC issue!"
+          sleep 3600
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}

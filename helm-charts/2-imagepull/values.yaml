@@ -1,0 +1,22 @@
+replicaCount: 1
+
+# This is the problem: Image doesn't exist
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: "non-existent-tag-xyz123"
+
+nameOverride: ""
+fullnameOverride: "imagepull-app"
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+labels:
+  app.kubernetes.io/name: imagepull-app
+  app.kubernetes.io/version: "1.0"

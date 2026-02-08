@@ -1,0 +1,31 @@
+replicaCount: 1
+
+image:
+  repository: busybox
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: "crashloop-app"
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+# This is the problem: /bin/invalid-command doesn't exist
+# Pod will crash and restart continuously
+containerCommand:
+  - /bin/invalid-command
+
+containerArgs: []
+
+restartPolicy: Always
+
+# Pod will be in CrashLoopBackOff until the command is fixed
+labels:
+  app.kubernetes.io/name: crashloop-app
+  app.kubernetes.io/version: "1.0"

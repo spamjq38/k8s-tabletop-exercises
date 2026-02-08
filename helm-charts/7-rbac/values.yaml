@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: bitnami/kubectl
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: "rbac-app"
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+labels:
+  app.kubernetes.io/name: rbac-app
+  app.kubernetes.io/version: "1.0"

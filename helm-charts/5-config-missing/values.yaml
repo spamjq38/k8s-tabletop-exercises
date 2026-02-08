@@ -1,0 +1,25 @@
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: "config-app"
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+# This is the problem: ConfigMap reference doesn't exist
+configMapName: "missing-config"
+secretName: "missing-secret"
+
+labels:
+  app.kubernetes.io/name: config-app
+  app.kubernetes.io/version: "1.0"

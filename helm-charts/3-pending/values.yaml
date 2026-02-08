@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: "pending-app"
+
+# This is the problem: Requesting more CPU than available on nodes
+resources:
+  limits:
+    cpu: "10"
+    memory: 4Gi
+  requests:
+    cpu: "8"
+    memory: 3Gi
+
+labels:
+  app.kubernetes.io/name: pending-app
+  app.kubernetes.io/version: "1.0"
