@@ -13,10 +13,10 @@ image:
 # The stress test will allocate 128Mi but we only allow 50Mi
 resources:
   limits:
-    memory: "128Mi"    # ❌ DELIBERATELY TOO LOW - will cause OOMKill
+    memory: "256Mi"    # ❌ DELIBERATELY TOO LOW - will cause OOMKill
     cpu: "100m"
   requests:
-    memory: "50Mi"
+    memory: "256Mi"
     cpu: "100m"
 
 # Stress test configuration
