@@ -1,8 +1,14 @@
-{{- define "broken-service.name" -}}
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "brokenservice.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{- define "broken-service.fullname" -}}
+{{/*
+Create a default fully qualified app name.
+*/}}
+{{- define "brokenservice.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -15,17 +21,29 @@
 {{- end }}
 {{- end }}
 
-{{- define "broken-service.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "brokenservice.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.AppVersion | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{- define "broken-service.labels" -}}
-helm.sh/chart: {{ include "broken-service.chart" . }}
-{{ include "broken-service.selectorLabels" . }}
+{{/*
+Common labels
+*/}}
+{{- define "brokenservice.labels" -}}
+helm.sh/chart: {{ include "brokenservice.chart" . }}
+{{ include "brokenservice.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
-{{- define "broken-service.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "broken-service.name" . }}
+{{/*
+Selector labels
+*/}}
+{{- define "brokenservice.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "brokenservice.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

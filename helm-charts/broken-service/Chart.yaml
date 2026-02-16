@@ -1,10 +1,6 @@
 apiVersion: v2
 name: broken-service
-description: Deliberately broken service port configuration for training
+description: Service port mismatch debugging exercise (intentionally wrong targetPort)
 type: application
-version: 1.0.0
+version: 0.1.0
 appVersion: "1.0"
-keywords:
-  - tabletop-exercise
-  - service
-  - networking

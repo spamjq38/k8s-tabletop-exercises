@@ -1,29 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "broken-service.fullname" . }}
+  name: {{ include "brokenservice.fullname" . }}
   labels:
-    {{- include "broken-service.labels" . | nindent 4 }}
+    {{- include "brokenservice.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "broken-service.selectorLabels" . | nindent 6 }}
+      {{- include "brokenservice.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "broken-service.selectorLabels" . | nindent 8 }}
+        {{- include "brokenservice.selectorLabels" . | nindent 8 }}
     spec:
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        args:
-          - "-text={{ .Values.app.text }}"
-          - "-listen=:{{ .Values.app.port }}"
+        command: {{ toJson .Values.containerCommand }}
+        {{- if .Values.containerArgs }}
+        args: {{ toJson .Values.containerArgs }}
+        {{- end }}
         ports:
         - name: http
-          containerPort: {{ .Values.app.port }}
+          containerPort: {{ .Values.containerPort }}
           protocol: TCP
         resources:
           {{- toYaml .Values.resources | nindent 12 }}

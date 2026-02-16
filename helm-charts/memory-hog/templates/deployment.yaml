@@ -1,52 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "memory-hog.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "memoryhog.fullname" . }}
   labels:
-    {{- include "memory-hog.labels" . | nindent 4 }}
+    {{- include "memoryhog.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "memory-hog.selectorLabels" . | nindent 6 }}
+      {{- include "memoryhog.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "memory-hog.selectorLabels" . | nindent 8 }}
+        {{- include "memoryhog.selectorLabels" . | nindent 8 }}
     spec:
-      {{- if .Values.serviceAccount.create }}
-      serviceAccountName: {{ include "memory-hog.serviceAccountName" . }}
-      {{- end }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
       - name: {{ .Chart.Name }}
-        securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # This will try to allocate memory beyond the limit
-        command: ["stress"]
-        args:
-          {{- range .Values.stressArgs }}
-          - {{ . | quote }}
-          {{- end }}
+        command: {{ toJson .Values.containerCommand }}
+        {{- if .Values.containerArgs }}
+        args: {{ toJson .Values.containerArgs }}
+        {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
