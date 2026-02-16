@@ -19,10 +19,9 @@ resources:
 # This is the problem: /bin/invalid-command doesn't exist
 # Pod will crash and restart continuously
 containerCommand:
-  - /bin/sh
-containerArgs:
-  - -c
-  - "echo ok; sleep 3600"
+  - /bin/invalid-command
+
+containerArgs: []
 
 restartPolicy: Always
 

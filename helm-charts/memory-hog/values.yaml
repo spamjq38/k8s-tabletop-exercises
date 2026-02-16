@@ -11,10 +11,10 @@ fullnameOverride: "memory-app"
 resources:
   limits:
     cpu: 200m
-    memory: 256Mi
+    memory: 50Mi
   requests:
     cpu: 50m
-    memory: 256Mi
+    memory: 20Mi
 
 # This is the problem: memory limit is intentionally too low.
 # The container allocates ~200Mi and gets OOMKilled.
