@@ -19,7 +19,6 @@ resources:
 # This is the problem: /bin/invalid-command doesn't exist
 # Pod will crash and restart continuously
 containerCommand:
-  - /bin/invalid-command
 
 containerArgs: []
 
