@@ -1,56 +1,30 @@
-# Default values for memory-hog
-# This chart is INTENTIONALLY broken for training purposes
-# The memory limit is too low and will cause OOMKilled
-
 replicaCount: 1
 
 image:
-  repository: polinux/stress
+  repository: python
   pullPolicy: IfNotPresent
-  tag: "latest"
-
-# PROBLEM: These resource limits are too low!
-# The stress test will allocate 128Mi but we only allow 50Mi
-resources:
-  limits:
-    memory: "256Mi"    # ❌ DELIBERATELY TOO LOW - will cause OOMKill
-    cpu: "100m"
-  requests:
-    memory: "256Mi"
-    cpu: "100m"
-
-# Stress test configuration
-# This will try to allocate 128Mi of memory
-stressArgs:
-  - "--vm"
-  - "1"
-  - "--vm-bytes"
-  - "128M"           # Tries to allocate 128Mi
-  - "--vm-hang"
-  - "0"
-  - "--verbose"
+  tag: "3.11-alpine"
 
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "memory-app"
 
-serviceAccount:
-  create: false
-  annotations: {}
-  name: ""
+resources:
+  limits:
+    cpu: 200m
+    memory: 50Mi
+  requests:
+    cpu: 50m
+    memory: 20Mi
 
-podAnnotations:
-  scenario: "crashloop-backoff"
-  training: "true"
+# This is the problem: memory limit is intentionally too low.
+# The container allocates ~200Mi and gets OOMKilled.
+containerCommand:
+  - python
 
-podSecurityContext: {}
+containerArgs:
+  - "-c"
+  - "import time; a=' '*(200*1024*1024); print('allocated_bytes', len(a)); time.sleep(3600)"
 
-securityContext: {}
-
-service:
-  enabled: false  # No service needed for this scenario
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+labels:
+  app.kubernetes.io/name: memory-hog
+  app.kubernetes.io/version: "1.0"

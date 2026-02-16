@@ -1,29 +1,32 @@
-# Default values - INTENTIONALLY BROKEN
 replicaCount: 1
 
 image:
-  repository: hashicorp/http-echo
+  repository: python
   pullPolicy: IfNotPresent
-  tag: "0.2.3"
+  tag: "3.11-alpine"
 
-# Application listens on 8080 (defined via args)
-app:
-  port: 8080
-  text: "Hello from pod: ${HOSTNAME}!"
+nameOverride: ""
+fullnameOverride: "broken-app"
 
-# PROBLEM: targetPort is wrong!
 service:
   type: ClusterIP
   port: 80
-  targetPort: 9090    # ❌ WRONG! Should be 8080
+  # This is the problem: app listens on 8080, but Service sends to 9090.
+  targetPort: 9090
+
+containerPort: 8080
 
 resources:
   limits:
-    memory: "64Mi"
-    cpu: "100m"
+    cpu: 100m
+    memory: 64Mi
   requests:
-    memory: "32Mi"
-    cpu: "50m"
+    cpu: 50m
+    memory: 32Mi
 
-nameOverride: ""
-fullnameOverride: ""
+containerCommand:
+  - python
+containerArgs:
+  - "-m"
+  - "http.server"
+  - "8080"
