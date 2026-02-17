@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "reporollback.fullname" . }}
+  labels:
+    {{- include "reporollback.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "reporollback.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "reporollback.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: {{ .Values.restartPolicy }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: MESSAGE
+          value: {{ .Values.message | quote }}
+        command: {{ toJson .Values.containerCommand }}
+        {{- if .Values.containerArgs }}
+        args: {{ toJson .Values.containerArgs }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}

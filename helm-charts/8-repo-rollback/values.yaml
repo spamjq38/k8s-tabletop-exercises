@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: busybox
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: "repo-rollback-app"
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+message: "repo-rollback v0.1.0: OK"
+
+# Healthy default command: keep the pod running and emit logs.
+containerCommand:
+  - /bin/sh
+containerArgs:
+  - -c
+  - 'echo "${MESSAGE}"; while true; do echo "$(date -Iseconds) ${MESSAGE}"; sleep 5; done'
+
+restartPolicy: Always
+
+labels:
+  app.kubernetes.io/name: repo-rollback-app
+  app.kubernetes.io/version: "1.0"

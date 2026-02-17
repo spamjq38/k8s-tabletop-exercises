@@ -1,0 +1,11 @@
+apiVersion: v2
+name: repo-rollback
+description: Helm repo upgrade + rollback exercise (build two versions, upgrade to broken, rollback)
+type: application
+version: 0.1.0
+appVersion: "1.0"
+keywords:
+  - helm
+  - repo
+  - rollback
+  - debugging
