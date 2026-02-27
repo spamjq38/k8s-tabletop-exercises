@@ -1,0 +1,2 @@
+configMapName: "my-config"
+secretName: "my-secret"

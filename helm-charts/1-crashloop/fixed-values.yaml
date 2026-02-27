@@ -1,0 +1,5 @@
+containerCommand:
+  - /bin/sh
+containerArgs:
+  - -c
+  - "echo ok; sleep 3600"

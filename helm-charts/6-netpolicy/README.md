@@ -13,10 +13,14 @@ This chart is **intentionally broken** for training. Traffic to the Pod is block
 
 ## How to Reproduce
 
+`exercise-namespace` below is a Kubernetes namespace name (not a local repo folder). It is created automatically by `--create-namespace`.
+
+Commands below must be run from a machine where this chart directory exists.
+
 ```bash
-helm install netpolicy . -n exercise-01 --create-namespace
-kubectl get networkpolicy -n exercise-01
-kubectl describe networkpolicy -n exercise-01
+helm install netpolicy . -n exercise-namespace --create-namespace
+kubectl get networkpolicy -n exercise-namespace
+kubectl describe networkpolicy -n exercise-namespace
 ```
 
 ## Fix
@@ -48,7 +52,50 @@ spec:
 Apply it:
 
 ```bash
-kubectl apply -n exercise-01 -f allow.yaml
+kubectl apply -n exercise-namespace -f allow.yaml
+```
+
+### Option 1 (Recommended): GitOps fix (persistent with ArgoCD)
+
+In this environment, ArgoCD tracks:
+
+- **Target Revision**: `argocd-active`
+- **Path**: `helm-charts-new/6-netpolicy`
+
+So the persistent fix is:
+
+```bash
+cd /home/juls/terraform_proxmox/terraform_proxmox
+git checkout argocd-active
+
+# edit: helm-charts-new/6-netpolicy/templates/deployment.yaml
+git add helm-charts-new/6-netpolicy/templates/deployment.yaml
+git commit -m "fix(netpolicy): allow required ingress traffic"
+git push origin argocd-active
+```
+
+Then in ArgoCD, sync app `netpolicy-helm` (or wait for auto-sync).
+
+### Option 2: Run from laptop over SSH (temporary override)
+
+```bash
+cat <<'EOF' | ssh root@192.168.122.100 'kubectl apply -n exercise-namespace -f -'
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpolicy-allow-http
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: netpolicy-app
+  policyTypes:
+  - Ingress
+  ingress:
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 80
+EOF
 ```
 
 ### Chart-level fix

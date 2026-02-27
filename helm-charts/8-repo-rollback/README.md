@@ -16,6 +16,8 @@ This exercise teaches **Helm repo versioning + rollback**:
 
 ## How to Reproduce (create a local repo, then upgrade to a broken version)
 
+`exercise-namespace` below is a Kubernetes namespace name (not a local repo folder). It is created automatically by `--create-namespace`.
+
 ### 1) Package v0.1.0 into a local repo directory
 
 From this chart directory:
@@ -35,10 +37,10 @@ helm repo update
 ```bash
 helm install repo-rollback local-exercises/repo-rollback \
   --version 0.1.0 \
-  -n exercise-08 --create-namespace
+  -n exercise-namespace --create-namespace
 
-kubectl get pods -n exercise-08 -w
-kubectl logs -n exercise-08 deploy/repo-rollback-app
+kubectl get pods -n exercise-namespace -w
+kubectl logs -n exercise-namespace deploy/repo-rollback-app
 ```
 
 ### 3) Publish a broken v0.2.0 and upgrade
@@ -66,11 +68,11 @@ Upgrade to the new version:
 ```bash
 helm upgrade repo-rollback local-exercises/repo-rollback \
   --version 0.2.0 \
-  -n exercise-08
+  -n exercise-namespace
 
-kubectl get pods -n exercise-08 -w
-kubectl describe pod -n exercise-08 -l app.kubernetes.io/instance=repo-rollback
-kubectl logs -n exercise-08 -l app.kubernetes.io/instance=repo-rollback --previous
+kubectl get pods -n exercise-namespace -w
+kubectl describe pod -n exercise-namespace -l app.kubernetes.io/instance=repo-rollback
+kubectl logs -n exercise-namespace -l app.kubernetes.io/instance=repo-rollback --previous
 ```
 
 Expected outcome: the Pod goes into `CrashLoopBackOff`.
@@ -80,11 +82,11 @@ Expected outcome: the Pod goes into `CrashLoopBackOff`.
 ### Option A: Roll back to the previous Helm revision (most common)
 
 ```bash
-helm history repo-rollback -n exercise-08
-helm rollback repo-rollback 1 -n exercise-08
+helm history repo-rollback -n exercise-namespace
+helm rollback repo-rollback 1 -n exercise-namespace
 
-kubectl get pods -n exercise-08 -w
-kubectl logs -n exercise-08 deploy/repo-rollback-app
+kubectl get pods -n exercise-namespace -w
+kubectl logs -n exercise-namespace deploy/repo-rollback-app
 ```
 
 ### Option B: Pin the chart version and upgrade back
@@ -94,12 +96,12 @@ This re-applies a known-good chart version from the repo.
 ```bash
 helm upgrade repo-rollback local-exercises/repo-rollback \
   --version 0.1.0 \
-  -n exercise-08
+  -n exercise-namespace
 ```
 
 ## Cleanup
 
 ```bash
-helm uninstall repo-rollback -n exercise-08
-kubectl delete ns exercise-08
+helm uninstall repo-rollback -n exercise-namespace
+kubectl delete ns exercise-namespace
 ```
