@@ -12,7 +12,7 @@ service:
   type: ClusterIP
   port: 80
   # This is the problem: app listens on 8080, but Service sends to 9090.
-  targetPort: 9090
+  targetPort: 8080
 
 containerPort: 8080
 

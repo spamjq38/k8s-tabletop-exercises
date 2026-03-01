@@ -17,8 +17,8 @@ resources:
     memory: 32Mi
 
 # This is the problem: ConfigMap reference doesn't exist
-configMapName: "missing-config"
-secretName: "missing-secret"
+configMapName: "my-config"
+secretName: "my-secret"
 
 labels:
   app.kubernetes.io/name: config-app
